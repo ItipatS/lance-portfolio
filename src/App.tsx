@@ -1,210 +1,288 @@
-import { motion } from "framer-motion";
+import { useMemo, useState } from "react";
+import { projects, type ProjectCategory } from "./data/projects";
+import { profile } from "./data/profile";
+import { ProjectCard } from "./components/ProjectCard";
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0 },
-};
-
-function Container({ children }: { children: React.ReactNode }) {
-  return <div className="mx-auto max-w-3xl px-5 py-10">{children}</div>;
-}
-
-function Chip({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="rounded-full border border-zinc-800 bg-zinc-900/50 px-3 py-1 text-xs text-zinc-200">
-      {children}
-    </span>
-  );
-}
-
-function LinkPill({ href, label }: { href: string; label: string }) {
+function LargeGitBtn({ href }: { href: string}) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/40 px-3 py-1 text-sm text-zinc-200 hover:border-zinc-600 hover:bg-zinc-900/70 transition"
+      className="
+        mt-5
+        inline-flex
+        items-center
+        justify-center
+        gap-2
+        rounded-xl
+        px-6
+        py-3
+        text-sm
+        font-medium
+        text-zinc-100
+        relative
+        transition-all
+        duration-300
+        group
+      "
     >
-      {label}
-      <span className="text-zinc-500">↗</span>
+      {/* Gradient Border Layer */}
+      <span
+        className="
+          absolute
+          inset-0
+          rounded-xl
+          p-px
+          bg-linear-to-r
+          from-amber-900
+          via-fuchsia-500
+          to-cyan-500
+          opacity-70
+          group-hover:opacity-100
+          transition
+          
+        "
+      >
+        <span className="block h-full w-full rounded-xl bg-zinc-900" />
+      </span>
+
+      {/* Content */}
+      <span className="relative flex items-center gap-2">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className="opacity-90"
+        >
+          <path d="M12 0C5.37 0 0 5.37 0 12a12 12 0 008.21 11.39c.6.11.82-.26.82-.58v-2.02c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.33-1.76-1.33-1.76-1.09-.75.08-.74.08-.74 1.2.08 1.83 1.23 1.83 1.23 1.07 1.83 2.81 1.3 3.5.99.11-.78.42-1.3.76-1.6-2.66-.3-5.46-1.33-5.46-5.92 0-1.31.47-2.38 1.23-3.22-.12-.3-.53-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 016 0C17 4.75 18 5.07 18 5.07c.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.6-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58A12 12 0 0024 12c0-6.63-5.37-12-12-12z" />
+        </svg>
+
+        GitHub
+        <span className="opacity-70">↗</span>
+      </span>
     </a>
   );
 }
 
-function Card({
-  title,
-  desc,
-  links,
-}: {
-  title: string;
-  desc: string;
-  links: { href: string; label: string }[];
-}) {
+function LargeBtn({ href, label }: { href: string ; label: string }) {
   return (
-    <div className="group rounded-2xl border border-zinc-800 bg-zinc-900/30 p-4 transition hover:-translate-y-0.5 hover:border-zinc-600 hover:bg-zinc-900/50">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="font-medium text-zinc-100">{title}</div>
-          <p className="mt-2 text-sm leading-6 text-zinc-300">{desc}</p>
-        </div>
-      </div>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {links.map((l) => (
-          <LinkPill key={l.href} href={l.href} label={l.label} />
-        ))}
-      </div>
-    </div>
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="
+        mt-5
+        inline-flex
+        items-center
+        justify-center
+        gap-2
+        rounded-xl
+        px-6
+        py-3
+        text-sm
+        font-medium
+        text-zinc-100
+        relative
+        transition-all
+        duration-300
+        group
+      "
+    >
+      {/* Gradient Border Layer */}
+      <span
+        className="
+          absolute
+          inset-0
+          rounded-xl
+          p-px
+          bg-linear-to-r
+          from-lime-300
+          via-emerald-500
+          to-cyan-500
+          opacity-70
+          group-hover:opacity-100
+          transition
+          
+        "
+      >
+        <span className="block h-full w-full rounded-xl bg-zinc-900" />
+      </span>
+
+      {/* Content */}
+      <span className="relative flex items-center gap-2">
+
+        {label}
+        <span className="opacity-70">↗</span>
+      </span>
+    </a>
   );
 }
 
-function Section({
-  id,
-  title,
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="text-lg font-semibold tracking-tight text-zinc-100">
+      {children}
+    </h2>
+  );
+}
+
+function PillButton({
+  active,
+  onClick,
   children,
 }: {
-  id: string;
-  title: string;
+  active: boolean;
+  onClick: () => void;
   children: React.ReactNode;
 }) {
   return (
-    <motion.section
-      id={id}
-      variants={fadeUp}
-      className="py-10"
+    <button
+      onClick={onClick}
+      className={[
+        "rounded-full border px-3 py-1 text-xs transition",
+        active
+          ? "border-zinc-500 bg-zinc-800/60 text-zinc-100"
+          : "border-zinc-800 bg-zinc-900/30 text-zinc-300 hover:border-zinc-600 hover:bg-zinc-900/60",
+      ].join(" ")}
     >
-      <h2 className="text-lg font-semibold tracking-tight text-zinc-100">
-        {title}
-      </h2>
-      <div className="mt-4 text-sm leading-6 text-zinc-300">{children}</div>
-    </motion.section>
+      {children}
+    </button>
+  );
+}
+
+function MetricPill({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="rounded-full border border-zinc-800 bg-zinc-900/40 px-3 py-1 text-xs text-zinc-200">
+      {children}
+    </span>
   );
 }
 
 export default function App() {
+  const [filter, setFilter] = useState<ProjectCategory | "All">("All");
+
+  const filtered = useMemo(() => {
+    if (filter === "All") return projects;
+    return projects.filter((p) => p.category === filter);
+  }, [filter]);
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      {/* subtle glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 h-72 w-[36rem] -translate-x-1/2 rounded-full bg-gradient-to-r from-indigo-500/10 via-fuchsia-500/10 to-cyan-500/10 blur-3xl" />
+        <div className="absolute -top-40 left-1/2 h-72 w-xl -translate-x-1/2 rounded-full bg-linear-to-r from-indigo-500/10 via-fuchsia-500/10 to-cyan-500/10 blur-3xl" />
       </div>
 
-      <Container>
-        <motion.div
-          initial="hidden"
-          animate="show"
-          transition={{ staggerChildren: 0.08 }}
-          className="relative"
-        >
-          {/* HERO */}
-          <motion.header variants={fadeUp} className="space-y-4">
-            <p className="text-sm text-zinc-400">Portfolio</p>
-            <h1 className="text-3xl font-bold tracking-tight">Lance</h1>
-            <p className="text-zinc-300">
-              Roblox systems-focused gameplay engineer. I focus on stabilizing core systems,
-              improving maintainability, and supporting long-term development with live-service constraints in mind.
-            </p>
-
-            <div className="flex flex-wrap gap-2">
-              <Chip>Server-authoritative</Chip>
-              <Chip>Data-driven</Chip>
-              <Chip>ECS / Simulation</Chip>
-              <Chip>Typed Luau</Chip>
-              <Chip>Replication budgets</Chip>
+      <div className="px-20 py-10">
+        {/* Header */}
+        <header className="relative space-y-4">
+          <p className="text-sm text-zinc-400">Portfolio / Resume</p>
+          <h1 className="text-3xl font-bold tracking-tight">{profile.name}</h1>
+          <p className="text-zinc-200">{profile.headline}</p>
+          <p className="max-w-3xl text-sm leading-6 text-zinc-300">
+            {profile.summary}
+            <div className="mt-4 flex flex-wrap gap-2">
+              {profile.metrics.map((m) => (
+                <MetricPill key={m}>{m}</MetricPill>
+              ))}
             </div>
+          </p>
 
-            <div className="flex flex-wrap gap-2 pt-2">
-              <LinkPill href="#projects" label="Projects" />
-              <LinkPill href="#demos" label="Demos" />
-              <LinkPill href="#stack" label="Tooling" />
-              <LinkPill href="#availability" label="Availability" />
-            </div>
-          </motion.header>
+          {/* Links */}
+          <div className="flex flex-wrap gap-4 pt-2">
+            
+            {profile.links.github && <LargeGitBtn href={profile.links.github} />}
 
-          <Section id="main" title="What I do best">
-            <ul className="list-disc space-y-2 pl-5">
-              <li>
-                Owning core systems and technical foundations, building architecture that lets multiple developers contribute safely over time.
-              </li>
-              <li>
-                Preventative production mindset: defensive validation, idempotent ops, edge-case simulation, and controlled rollouts.
-              </li>
-              <li>
-                Clean authority boundaries and lifecycle handling (init → active → cleanup) so new mechanics don’t destabilize existing behavior.
-              </li>
+            {profile.links.roblox && <LargeBtn href={profile.links.roblox} label="Roblox" />}
+
+            {profile.links.cv && <LargeBtn href={profile.links.cv} label="CV (PDF)" />}
+          </div>
+        </header>
+
+        <div className="mt-10 grid gap-10">
+          {/* Strengths */}
+          <section>
+            <SectionTitle>What I do best</SectionTitle>
+            <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-zinc-300">
+              {profile.strengths.map((s) => (
+                <li key={s}>{s}</li>
+              ))}
             </ul>
-          </Section>
+          </section>
 
-          <Section id="projects" title="Featured projects">
-            <div className="space-y-3">
-              <Card
-                title="RPGJECS — ECS backend (200+ entities)"
-                desc="Deterministic server control with extensible, debuggable systems and measured replication budgets (≈80–200 KB/s)."
-                links={[{ href: "https://github.com/ItipatS/RPGJECS", label: "GitHub" }]}
-              />
-              <Card
-                title="Roblox Server Simulation — 1500 entities"
-                desc="Deterministic simulation at scale with measured replication budget (≈400 KB/s) and load-aware structure."
-                links={[{ href: "https://github.com/ItipatS/Roblox-Server-Simulation", label: "GitHub" }]}
-              />
-              <Card
-                title="UI + DataStore integration"
-                desc="Data-bound UI patterns + persistence flows designed for maintainability and iteration safety."
-                links={[{ href: "https://github.com/ItipatS/Roblox-Data-Bound-UI-with-Datastore", label: "GitHub" }]}
-              />
-            </div>
-          </Section>
+          {/* Projects */}
+          <section>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <SectionTitle>Featured projects</SectionTitle>
 
-          <Section id="demos" title="Demos & games">
-            <div className="space-y-2">
+              {/* Category filter */}
               <div className="flex flex-wrap gap-2">
-                <LinkPill href="https://www.roblox.com/games/119162488544766" label="VoxlCoding (game)" />
-                <LinkPill href="https://www.roblox.com/games/131785365792818/Arcane-Academy" label="Arcane Academy (contribution)" />
-                <LinkPill href="https://www.roblox.com/users/94439374/profile" label="Roblox profile" />
-              </div>
-
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <Card
-                  title="VoxlCoding demo"
-                  desc="Gameplay/system demo video."
-                  links={[{ href: "https://youtu.be/CMWizPhxsQc", label: "YouTube" }]}
-                />
-                <Card
-                  title="UI + DataStore demo"
-                  desc="Data binding + persistence demo video."
-                  links={[{ href: "https://youtu.be/0NLv2Lb7Fcc", label: "YouTube" }]}
-                />
-                <Card
-                  title="Custom World Generation"
-                  desc="World gen demo video."
-                  links={[{ href: "https://youtu.be/6OcOnGqwPhM", label: "YouTube" }]}
-                />
-                <Card
-                  title="MagicSpell Keybinds & Buttonbinds"
-                  desc="Input + ability binding demo video."
-                  links={[{ href: "https://youtu.be/3mHoCtLiB9I", label: "YouTube" }]}
-                />
+                <PillButton
+                  active={filter === "All"}
+                  onClick={() => setFilter("All")}
+                >
+                  All
+                </PillButton>
+                <PillButton
+                  active={filter === "Roblox"}
+                  onClick={() => setFilter("Roblox")}
+                >
+                  Roblox
+                </PillButton>
+                <PillButton
+                  active={filter === "Unity"}
+                  onClick={() => setFilter("Unity")}
+                >
+                  Unity
+                </PillButton>
+                <PillButton
+                  active={filter === "Tooling"}
+                  onClick={() => setFilter("Tooling")}
+                >
+                  Tooling
+                </PillButton>
               </div>
             </div>
-          </Section>
 
-          <Section id="stack" title="Tooling & stack">
-            <p>
-              Rojo, Git/GitHub, VSCode • Typed Luau • Knit, Nevermore, Wally, Lune • ECS (JECS), Blink, service-based architectures
-            </p>
-          </Section>
+            <div className="mt-4 grid gap-4">
+              {filtered.map((p) => (
+                <ProjectCard key={p.id} p={p} />
+              ))}
+            </div>
+          </section>
 
-          <Section id="availability" title="Availability">
-            <ul className="list-disc space-y-2 pl-5">
-              <li>~15–20 hours per week</li>
-              <li>Able to overlap with US/EU hours for coordination and reviews</li>
+          {/* Stack */}
+          <section>
+            <SectionTitle>Tooling & stack</SectionTitle>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {profile.stack.map((t) => (
+                <span
+                  key={t}
+                  className="rounded-full border border-zinc-800 bg-zinc-900/40 px-3 py-1 text-xs text-zinc-200"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          </section>
+
+          {/* Availability */}
+          <section>
+            <SectionTitle>Availability</SectionTitle>
+            <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-zinc-300">
+              {profile.availability.map((a) => (
+                <li key={a}>{a}</li>
+              ))}
             </ul>
-          </Section>
+          </section>
 
-          <motion.footer variants={fadeUp} className="mt-10 border-t border-zinc-900 pt-6 text-xs text-zinc-500">
-            © {new Date().getFullYear()} Lance • React + Tailwind • Hosted on GitHub Pages
-          </motion.footer>
-        </motion.div>
-      </Container>
+          <footer className="border-t border-zinc-900 pt-6 text-xs text-zinc-500">
+            © {new Date().getFullYear()} {profile.name} • React + Tailwind •
+            GitHub Pages
+          </footer>
+        </div>
+      </div>
     </div>
   );
 }
