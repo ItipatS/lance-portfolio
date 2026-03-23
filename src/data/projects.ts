@@ -1,4 +1,4 @@
-export type ProjectCategory = "Roblox" | "Unity" | "Tooling";
+export type ProjectCategory = "Roblox" | "Unity" | "Tooling" | "Frontend" | "Bedrock Addon";
 
 export type ProjectLink = {
   label: string;
@@ -20,9 +20,142 @@ export type Project = {
   links: ProjectLink[];
 
   isPrivate?: boolean;
+
+  liveDemoUrl?: string;
 };
 
-export const projects: Project[] = [  
+export const projects: Project[] = [
+  {
+    id: "sacred-runes-bedrock-addon",
+    title: "Sacred Runes – Minecraft Bedrock Add-On",
+    category: "Bedrock Addon",
+
+    pitch:
+      "Full-stack Minecraft Bedrock add-on with a rune combination spell system and a multi-phase script-driven boss — built to demonstrate addon architecture across BP, RP, Script API, and Molang.",
+
+    summary:
+      "A Minecraft Bedrock Edition add-on built as a portfolio piece covering the complete addon stack. Players chant rune items in sequence to build a combo buffer, then cast by attacking — a sorted-key registry resolves any combination order-independently. The Rune Guardian boss uses a tag-based AI brain (Script API) for phase transitions and special attacks while delegating locomotion entirely to Behavior Pack JSON. Includes a voidslice hazard entity, directional fire breath with a Molang-injected cone, a gyroscopic held-item animation, and thematic loot injection into vanilla chest tables.",
+
+    links: [
+      { label: "GitHub", href: "https://github.com/ItipatS/Scared_Rune" }, // update slug if different
+      { label: "YouTube Demo", href: "https://youtu.be/2mWRwpVymoY" },
+    ],
+
+    youtubeIds: ["2mWRwpVymoY"],
+
+    metrics: [
+      "Minecraft Script API (Beta)",
+      "TypeScript + esbuild",
+      "Behavior Pack + Resource Pack",
+      "Molang + MolangVariableMap",
+      "Snowstorm particles",
+      "Blockbench models",
+    ],
+
+    technicalHighlights: [
+      "Built a data-driven spell registry where sorted rune element keys map to spell definitions — adding a new spell requires only one registry entry, nothing else changes",
+      "Implemented a multi-phase boss AI brain entirely in Script API: phase transitions, per-attack and global cooldowns stored as dynamic properties, attack selection filtered by range and cooldown with rotation logic",
+      "Bridged Script API to the animation system via client-synced entity properties — Script sets a bool, the animation controller reads q.property() to trigger, and q.all_animations_finished resets it; hit-frame damage is deferred to match the exact animation keyframe",
+      "Designed the Voidslice as a stationary area-attack hazard (not a projectile): no gravity, no collision, immune to damage via Script health restoration, despawned by runTimeout — three spawned per cast in an atan2 fan spread",
+      "Passed fire breath cone direction from Script into Molang emitter shape via MolangVariableMap, working around the q.property() entity-context constraint; particle color uses a 3-stop gradient and size grows with particle age",
+      "Injected runes thematically into vanilla chest loot tables (Ancient City biased toward shadow/earth, End City toward fire/lightning) and replaced 50% of natural warden spawns with the Rune Guardian using a system.run() defer to avoid a Bedrock Script API constraint",
+    ],
+  }, 
+  {
+    id: "league-profile-graph",
+    title: "League Profile Graph – Nuxt 4 Data Visualization App",
+    category: "Frontend",
+
+    pitch:
+      "Interactive match-history and champion-usage explorer built with Nuxt 4, TypeScript, Tailwind, and Riot APIs.",
+
+    summary:
+      "A deployed Nuxt application that visualizes League of Legends player data through a responsive sidebar + graph interface. Built with serverless API routes on Vercel, batched match fetching, infinite scroll, and a D3-powered champion graph for interactive exploration of match history and champion usage.",
+
+    links: [
+      { label: "Live", href: "https://lol-nuxt-playground-deploy-vercel.vercel.app/" },
+      { label: "YouTube Demo", href: "https://youtu.be/SyWzBhjhFeo" },
+      { label: "GitHub", href: "https://github.com/ItipatS/lol-nuxt-playground-deploy-vercel" },
+    ],
+
+    youtubeIds: ["SyWzBhjhFeo"],
+
+    metrics: [
+      "Nuxt 4 + TypeScript",
+      "Tailwind CSS",
+      "Riot API integration",
+      "Infinite scroll + batched fetch",
+      "D3 interactive graph",
+      "Vercel serverless deploy",
+    ],
+
+    technicalHighlights: [
+      "Integrated Riot account, summoner, match-list, and match-detail APIs through secure serverless endpoints",
+      "Used batched fetching and incremental pagination to load match history efficiently",
+      "Built interactive state-driven UI with Vue reactivity, component props/emits, and selected graph/detail views",
+      "Rendered champion relationships and usage patterns with D3 force simulation",
+      "Managed loading, error, empty, and partial-failure states for a smoother user experience",
+    ],
+  },
+  {
+    id: "unity-arena-fighter",
+    title: "3D Arena Fighting Game (Unity)",
+    category: "Unity",
+    pitch:
+      "A Smash/Brawlhalla-inspired arena fighter prototype focused on modular gameplay systems and polished UI flow.",
+    summary:
+      "Built entirely in Unity with component-based modules for movement/physics/stats/combat, plus a scene-aware UI system and responsive input buffering for fighting-game feel.",
+    youtubeIds: ["NoEU0BiMYJQ", "6s0k-Z0F8c8"],
+    links: [
+      { label: "Live", href: "https://itipats.itch.io/holo-arena" },
+      { label: "Watch Demo", href: "https://youtu.be/NoEU0BiMYJQ" },
+      { label: "UI Demo", href: "https://youtu.be/6s0k-Z0F8c8" },
+      { label: "GitHub", href: "https://github.com/ItipatS/HoloArena" },
+    ],
+    technicalHighlights: [
+      "Modular, inspector-friendly architecture (movement, gravity, ground check, stats, combat)",
+      "Input buffering + input windows for frame-precise actions",
+      "Scene-aware UI managers with animator-driven button feedback",
+      "Shader/VFX-driven feedback to reduce reliance on traditional UI bars",
+    ],
+  },
+
+  {
+    id: "jecs-rpg-template",
+    title: "Deterministic Mob Simulation – 150 Server-Driven Entities",
+    category: "Roblox",
+
+    pitch:
+      "Server-authoritative AI with explicit tick separation and minimal engine-native replication.",
+
+    summary:
+      "An ECS-driven server simulation validating scalable AI, raycast-based movement, and decoupled replication. AI, movement, and sync are explicitly separated across ticks to maintain stability under load while clients interpolate at 60 FPS.",
+
+    youtubeIds: ["eprIcdV42WM"],
+
+    links: [
+      { label: "Live", href: "https://www.roblox.com/games/104444037041931/RPGJECS-DEMO" },
+      { label: "Watch Demo", href: "https://youtu.be/eprIcdV42WM" },
+      { label: "GitHub", href: "https://github.com/ItipatS/RPGJECS" },
+    ],
+
+    metrics: [
+      "~150 active mobs",
+      "~80 KB/s net intake",
+      "AI 8 Hz • Simulation 20 Hz • Render 60 Hz",
+    ],
+
+    technicalHighlights: [
+      "ECS components: Transform, Traits, Locomotion, AIState, Hitbox",
+      "Strict system ordering: AI → Movement → Sync → Interpolation",
+      "Server replicates minimal hitbox transforms (no RemoteEvent spam)",
+      "Client-side interpolation fully decoupled from simulation tick",
+      "Raycast-based ground snapping to avoid per-entity physics overhead",
+      "Pre-baked navigation nodes could further reduce per-tick raycasts",
+    ],
+
+    liveDemoUrl: "https://www.roblox.com/games/104444037041931/RPGJECS-DEMO",
+  },
   {
     id: "jecs-dust-field",
     title: "Server-Authoritative ECS Simulation – 1,500+ Entities",
@@ -37,7 +170,7 @@ export const projects: Project[] = [
     youtubeIds: ["ooikRRlfHRs"],
 
     links: [
-      { label: "Play Demo", href: "https://www.roblox.com/games/129984384759966/Server-Simulation" },
+      { label: "Live", href: "https://www.roblox.com/games/129984384759966/Server-Simulation" },
       { label: "Watch Demo", href: "https://youtu.be/ooikRRlfHRs" },
       { label: "GitHub", href: "https://github.com/ItipatS/Roblox-Server-Simulation" },
     ],
@@ -58,66 +191,6 @@ export const projects: Project[] = [
     ],
   },
   {
-    id: "jecs-rpg-template",
-    title: "Deterministic Mob Simulation – 150 Server-Driven Entities",
-    category: "Roblox",
-
-    pitch:
-      "Server-authoritative AI with explicit tick separation and minimal engine-native replication.",
-
-    summary:
-      "An ECS-driven server simulation validating scalable AI, raycast-based movement, and decoupled replication. AI, movement, and sync are explicitly separated across ticks to maintain stability under load while clients interpolate at 60 FPS.",
-
-    youtubeIds: ["eprIcdV42WM"],
-
-    links: [
-      { label: "Play Demo", href: "https://www.roblox.com/games/104444037041931/RPGJECS-DEMO" },
-      { label: "Watch Demo", href: "https://youtu.be/eprIcdV42WM" },
-      { label: "GitHub", href: "https://github.com/ItipatS/RPGJECS" },
-    ],
-
-    metrics: [
-      "~150 active mobs",
-      "~80 KB/s net intake",
-      "AI 8 Hz • Simulation 20 Hz • Render 60 Hz",
-    ],
-
-    technicalHighlights: [
-      "ECS components: Transform, Traits, Locomotion, AIState, Hitbox",
-      "Strict system ordering: AI → Movement → Sync → Interpolation",
-      "Server replicates minimal hitbox transforms (no RemoteEvent spam)",
-      "Client-side interpolation fully decoupled from simulation tick",
-      "Raycast-based ground snapping to avoid per-entity physics overhead",
-      "Pre-baked navigation nodes could further reduce per-tick raycasts",
-    ],
-  },
-
-
-
-  {
-    id: "unity-arena-fighter",
-    title: "3D Arena Fighting Game (Unity)",
-    category: "Unity",
-    pitch:
-      "A Smash/Brawlhalla-inspired arena fighter prototype focused on modular gameplay systems and polished UI flow.",
-    summary:
-      "Built entirely in Unity with component-based modules for movement/physics/stats/combat, plus a scene-aware UI system and responsive input buffering for fighting-game feel.",
-    youtubeIds: ["NoEU0BiMYJQ", "6s0k-Z0F8c8"],
-    links: [
-      { label: "Play (itch.io)", href: "https://itipats.itch.io/holo-arena" },
-      { label: "Watch Demo", href: "https://youtu.be/NoEU0BiMYJQ" },
-      { label: "UI Demo", href: "https://youtu.be/6s0k-Z0F8c8" },
-      { label: "GitHub", href: "https://github.com/ItipatS/HoloArena" },
-    ],
-    technicalHighlights: [
-      "Modular, inspector-friendly architecture (movement, gravity, ground check, stats, combat)",
-      "Input buffering + input windows for frame-precise actions",
-      "Scene-aware UI managers with animator-driven button feedback",
-      "Shader/VFX-driven feedback to reduce reliance on traditional UI bars",
-    ],
-  },
-
-  {
     id: "voxlcoding-mini-language",
     title: "VoxlCoding – In-Game Mini Programming Language (Roblox)",
     category: "Tooling",
@@ -126,7 +199,7 @@ export const projects: Project[] = [
       "A rapid prototype: a tokenizer/parser/compiler pipeline inside Roblox, syntax highlighting, error feedback, and real-time preview rendering.",
     youtubeIds: ["CMWizPhxsQc", "dzdsKzTBOmY"],
     links: [
-      { label: "Play", href: "https://www.roblox.com/games/119162488544766" },
+      { label: "Live", href: "https://www.roblox.com/games/119162488544766" },
       { label: "Watch Demo 1", href: "https://youtu.be/CMWizPhxsQc" },
       { label: "Watch Demo 2", href: "https://youtu.be/dzdsKzTBOmY" },
     ],
@@ -168,7 +241,7 @@ export const projects: Project[] = [
       "Designed for maintainability: centralized UI manager, tween orchestration, lifecycle cleanup, and data-bound UI patterns backed by persistent storage.",
     youtubeIds: ["0NLv2Lb7Fcc"],
     links: [
-      { label: "Play Demo", href: "https://www.roblox.com/games/112639746648812/Data-Bound-UI-with-Datastore" },
+      { label: "Live", href: "https://www.roblox.com/games/112639746648812/Data-Bound-UI-with-Datastore" },
       { label: "Watch Demo", href: "https://youtu.be/0NLv2Lb7Fcc" },
       { label: "GitHub", href: "https://github.com/ItipatS/Roblox-Data-Bound-UI-with-Datastore" },
     ],

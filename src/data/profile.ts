@@ -17,10 +17,10 @@ export const profile: Profile = {
   name: "Itipat \"Lance\" Songsampansakul",
 
   headline:
-    "Simulation & Systems Engineer (Deterministic Authority • Networking • ECS)",
+    "Frontend Developer (TypeScript / Nuxt / React) with Systems Engineering Background",
 
   summary:
-    "I design server-authoritative simulations with explicit tick scheduling, bandwidth-aware replication, and clean authority boundaries. My work focuses on deterministic ECS-style architectures, hybrid delta + snapshot networking, and separating simulation from rendering to maintain predictable behavior under load. Roblox is the runtime I use to validate these systems — not the abstraction I rely on.",
+  "Computer Science graduate building interactive web interfaces using TypeScript, Nuxt, and React. Experienced in API-driven UI, data visualization, and responsive interface design. My background in game systems engineering helps me approach frontend development with strong attention to performance, state management, and user interaction.",
 
   strengths: [
     "Deterministic server authority over client trust",
@@ -33,14 +33,10 @@ export const profile: Profile = {
   ],
 
   metrics: [
-    "1,500+ entities simulated",
-    "~80–200 KB/s measured replication",
-    "AI 8 Hz • Simulation 20 Hz • Render 60 Hz",
-    "Delta + snapshot hybrid networking",
-    "Client ECS mirror reconstruction",
-  ],
-
-  stack: [
+    "React",
+    "Nuxt 4",
+    "TypeScript",
+    "Tailwind CSS",
     "Typed Luau",
     "JECS (ECS architecture)",
     "Blink (custom networking)",
@@ -50,8 +46,11 @@ export const profile: Profile = {
     "Git / VSCode",
   ],
 
+  stack: [
+  ],
+
   availability: [
-    "~15–20 hours/week",
+    "~40 hours/week",
     "Comfortable overlapping US/EU time zones",
   ],
 

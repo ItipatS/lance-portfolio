@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { projects, type ProjectCategory } from "./data/projects";
 import { profile } from "./data/profile";
 import { ProjectCard } from "./components/ProjectCard";
+import { SocialCards } from "./components/SocialCards";
+import { useSmoothScroll } from "./hooks/useSmoothScroll";
 
 function LargeGitBtn({ href }: { href: string}) {
   return (
@@ -128,26 +130,89 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
+const categoryStyle: Record<string, { active: string; idle: string }> = {
+  All:            { active: "border-zinc-500 bg-zinc-800/60 text-zinc-100",        idle: "border-zinc-800 bg-zinc-900/30 text-zinc-400 hover:border-zinc-600" },
+  Roblox:         { active: "border-red-500/70 bg-red-950/50 text-red-300",        idle: "border-zinc-800 bg-zinc-900/30 text-zinc-400 hover:border-red-700/50 hover:text-red-400" },
+  Unity:          { active: "border-sky-500/70 bg-sky-950/50 text-sky-300",        idle: "border-zinc-800 bg-zinc-900/30 text-zinc-400 hover:border-sky-700/50 hover:text-sky-400" },
+  Tooling:        { active: "border-amber-500/70 bg-amber-950/50 text-amber-300",  idle: "border-zinc-800 bg-zinc-900/30 text-zinc-400 hover:border-amber-700/50 hover:text-amber-400" },
+  Frontend:       { active: "border-cyan-500/70 bg-cyan-950/50 text-cyan-300",     idle: "border-zinc-800 bg-zinc-900/30 text-zinc-400 hover:border-cyan-700/50 hover:text-cyan-400" },
+  "Bedrock Addon":{ active: "border-lime-500/70 bg-lime-950/50 text-lime-300",     idle: "border-zinc-800 bg-zinc-900/30 text-zinc-400 hover:border-lime-700/50 hover:text-lime-400" },
+};
+
+const categoryIcon: Record<string, React.ReactNode> = {
+  All: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+      <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+      <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+      <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+      <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+    </svg>
+  ),
+  Roblox: (
+    // gamepad
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17 4H7a5 5 0 0 0-5 5v2l1 6a3 3 0 0 0 3 2h2l1-2h6l1 2h2a3 3 0 0 0 3-2l1-6V9a5 5 0 0 0-5-5zM9 13H7v-2h2V9h2v2h2v2h-2v2H9v-2zm7 1a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm2.5-3.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+    </svg>
+  ),
+  Unity: (
+    // hexagonal prism / unity-ish cube
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2 2 7.5v9L12 22l10-5.5v-9L12 2zm0 2.5 6.5 3.25L12 11 5.5 7.75 12 4.5zM4 9.1l7 3.5v7L4 16.1V9.1zm9 10.4v-7l7-3.5v7l-7 3.5z"/>
+    </svg>
+  ),
+  Tooling: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+    </svg>
+  ),
+  Frontend: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="16 18 22 12 16 6"/>
+      <polyline points="8 6 2 12 8 18"/>
+    </svg>
+  ),
+  "Bedrock Addon": (
+    // isometric block (Minecraft vibe)
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2 2 7.5V12l10 5.5L22 12V7.5L12 2zm0 2.5 6.5 3.25L12 11 5.5 7.75 12 4.5zM3.5 9l7 3.5v5.5l-7-3.5V9zm9 9v-5.5l7-3.5v5.5L12.5 18z" opacity=".85"/>
+      <rect x="10" y="3" width="4" height="4" rx=".5" transform="rotate(-20 12 5)" opacity=".4"/>
+    </svg>
+  ),
+};
+
 function PillButton({
   active,
+  category,
   onClick,
   children,
 }: {
   active: boolean;
+  category: string;
   onClick: () => void;
   children: React.ReactNode;
 }) {
+  const style = categoryStyle[category] ?? categoryStyle["All"];
+  const icon  = categoryIcon[category];
   return (
     <button
       onClick={onClick}
       className={[
-        "rounded-full border px-3 py-1 text-xs transition",
-        active
-          ? "border-zinc-500 bg-zinc-800/60 text-zinc-100"
-          : "border-zinc-800 bg-zinc-900/30 text-zinc-300 hover:border-zinc-600 hover:bg-zinc-900/60",
+        "group relative overflow-visible rounded-full border px-4 py-1.5 text-xs transition",
+        active ? style.active : style.idle,
       ].join(" ")}
     >
-      {children}
+      {/* Icon: lives inside button as faint watermark, jumps out on hover */}
+      {icon && (
+        <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <span
+            className="opacity-[.12] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:opacity-80 group-hover:-translate-y-9 group-hover:scale-[1.45] group-hover:drop-shadow-[0_0_8px_currentColor]"
+            style={{ display: "flex" }}
+          >
+            {icon}
+          </span>
+        </span>
+      )}
+      <span className="relative z-10">{children}</span>
     </button>
   );
 }
@@ -161,12 +226,27 @@ function MetricPill({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const [filter, setFilter] = useState<ProjectCategory | "All">("All");
+  useSmoothScroll(0.06);
+  const [filter,        setFilter]        = useState<ProjectCategory | "All">("All");
+  const [displayFilter, setDisplayFilter] = useState<ProjectCategory | "All">("All");
+  const [isOut,         setIsOut]         = useState(false);
+  const [animKey,       setAnimKey]       = useState(0);
 
-  const filtered = useMemo(() => {
-    if (filter === "All") return projects;
-    return projects.filter((p) => p.category === filter);
-  }, [filter]);
+  const displayed = useMemo(() => {
+    if (displayFilter === "All") return projects;
+    return projects.filter((p) => p.category === displayFilter);
+  }, [displayFilter]);
+
+  function handleFilter(cat: ProjectCategory | "All") {
+    if (cat === filter) return;
+    setFilter(cat);
+    setIsOut(true);
+    setTimeout(() => {
+      setDisplayFilter(cat);
+      setIsOut(false);
+      setAnimKey((k) => k + 1);
+    }, 160);
+  }
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
@@ -176,28 +256,31 @@ export default function App() {
 
       <div className="px-20 py-10">
         {/* Header */}
-        <header className="relative space-y-4">
-          <p className="text-sm text-zinc-400">Portfolio / Resume</p>
-          <h1 className="text-3xl font-bold tracking-tight">{profile.name}</h1>
-          <p className="text-zinc-200">{profile.headline}</p>
-          <p className="max-w-3xl text-sm leading-6 text-zinc-300">
-            {profile.summary}
-            <div className="mt-4 flex flex-wrap gap-2">
-              {profile.metrics.map((m) => (
-                <MetricPill key={m}>{m}</MetricPill>
-              ))}
+        <header className="relative flex flex-col gap-8 lg:flex-row lg:items-start">
+          {/* Left: bio */}
+          <div className="flex-1 space-y-4">
+            <p className="text-sm text-zinc-400">Portfolio / Resume</p>
+            <h1 className="text-3xl font-bold tracking-tight">{profile.name}</h1>
+            <p className="text-zinc-200">{profile.headline}</p>
+            <p className="max-w-3xl text-sm leading-6 text-zinc-300">
+              {profile.summary}
+              <div className="mt-4 flex flex-wrap gap-2">
+                {profile.metrics.map((m) => (
+                  <MetricPill key={m}>{m}</MetricPill>
+                ))}
+              </div>
+            </p>
+
+            {/* Links */}
+            <div className="flex flex-wrap gap-4 pt-2">
+              {profile.links.github && <LargeGitBtn href={profile.links.github} />}
+              {profile.links.roblox && <LargeBtn href={profile.links.roblox} label="Roblox" />}
+              {profile.links.cv && <LargeBtn href={profile.links.cv} label="CV (PDF)" />}
             </div>
-          </p>
-
-          {/* Links */}
-          <div className="flex flex-wrap gap-4 pt-2">
-            
-            {profile.links.github && <LargeGitBtn href={profile.links.github} />}
-
-            {profile.links.roblox && <LargeBtn href={profile.links.roblox} label="Roblox" />}
-
-            {profile.links.cv && <LargeBtn href={profile.links.cv} label="CV (PDF)" />}
           </div>
+
+          {/* Right: social cards */}
+          <SocialCards />
         </header>
 
         <div className="mt-10 grid gap-10">
@@ -218,52 +301,28 @@ export default function App() {
 
               {/* Category filter */}
               <div className="flex flex-wrap gap-2">
-                <PillButton
-                  active={filter === "All"}
-                  onClick={() => setFilter("All")}
-                >
-                  All
-                </PillButton>
-                <PillButton
-                  active={filter === "Roblox"}
-                  onClick={() => setFilter("Roblox")}
-                >
-                  Roblox
-                </PillButton>
-                <PillButton
-                  active={filter === "Unity"}
-                  onClick={() => setFilter("Unity")}
-                >
-                  Unity
-                </PillButton>
-                <PillButton
-                  active={filter === "Tooling"}
-                  onClick={() => setFilter("Tooling")}
-                >
-                  Tooling
-                </PillButton>
+                {(["All", "Roblox", "Unity", "Tooling", "Frontend", "Bedrock Addon"] as const).map((cat) => (
+                  <PillButton
+                    key={cat}
+                    category={cat}
+                    active={filter === cat}
+                    onClick={() => handleFilter(cat)}
+                  >
+                    {cat}
+                  </PillButton>
+                ))}
               </div>
             </div>
 
-            <div className="mt-4 grid gap-4">
-              {filtered.map((p) => (
-                <ProjectCard key={p.id} p={p} />
-              ))}
-            </div>
-          </section>
-
-          {/* Stack */}
-          <section>
-            <SectionTitle>Tooling & stack</SectionTitle>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {profile.stack.map((t) => (
-                <span
-                  key={t}
-                  className="rounded-full border border-zinc-800 bg-zinc-900/40 px-3 py-1 text-xs text-zinc-200"
-                >
-                  {t}
-                </span>
-              ))}
+            {/* fade-out wrapper → staggered card-in on new content */}
+            <div className={`transition-all duration-150 ${isOut ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}`}>
+              <div key={animKey} className="mt-4 grid gap-4">
+                {displayed.map((p, i) => (
+                  <div key={p.id} className="card-in" style={{ animationDelay: `${i * 0.07}s` }}>
+                    <ProjectCard p={p} />
+                  </div>
+                ))}
+              </div>
             </div>
           </section>
 

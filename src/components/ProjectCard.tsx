@@ -86,10 +86,63 @@ function LargeGithubBtn({ href }: { href: string }) {
   );
 }
 
+function LargeBtn({ href, label }: { href: string ; label: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="
+        mt-5
+        inline-flex
+        items-center
+        justify-center
+        gap-2
+        rounded-xl
+        px-6
+        py-3
+        text-sm
+        font-medium
+        text-zinc-100
+        relative
+        transition-all
+        duration-300
+        group
+      "
+    >
+      {/* Gradient Border Layer */}
+      <span
+        className="
+          absolute
+          inset-0
+          rounded-xl
+          p-px
+          bg-linear-to-r
+          from-lime-300
+          via-emerald-500
+          to-cyan-500
+          opacity-70
+          group-hover:opacity-100
+          transition
+          
+        "
+      >
+        <span className="block h-full w-full rounded-xl bg-zinc-900" />
+      </span>
 
+      {/* Content */}
+      <span className="relative flex items-center gap-2">
+
+        {label}
+        <span className="opacity-70">↗</span>
+      </span>
+    </a>
+  );
+}
 
 export function ProjectCard({ p }: { p: Project }) {
   const githubLink = p.links.find((l) => l.label === "GitHub");
+  const livedemo = p.links.find((l) => l.label === "Live");
   const mainVideo = useMemo(() => p.youtubeIds?.[0], [p.youtubeIds]);
 
   return (
@@ -135,7 +188,10 @@ export function ProjectCard({ p }: { p: Project }) {
               ))}
           </ul>
           
-           {githubLink && <LargeGithubBtn href={githubLink.href} />}
+          <div className="mt-5 flex flex-wrap items-center gap-4">
+            {livedemo && <LargeBtn href={livedemo.href} label={livedemo.label} />}
+            {githubLink && <LargeGithubBtn href={githubLink.href} />}
+          </div>
 
         </div>
       </div>
